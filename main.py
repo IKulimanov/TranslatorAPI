@@ -2,14 +2,17 @@ from flask import Flask, request
 from googletrans import Translator
 import psycopg2
 from psycopg2 import Error
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
 
 
 @app.route("/translate", methods=['POST'])
 def translate():
     body = request.get_json()
-    if body['code'][0] != 'myredlip':
+    if body['code'][0] != CODE:
         return 'bad code'
     text = body['text'][0]
     src_language = body['src_language'][0]
@@ -30,8 +33,7 @@ def get_translate_text(text, src_language, dsc_languages):
 
 def save_translate_to_redis(chat_id, profile_list):
     try:
-        conn = psycopg2.connect(dbname='myredlip_db', user='admin',
-                                password='admin', host='localhost', port="5432")
+        conn = psycopg2.connect(dbname=DBNAME, user=USER, password=PASSWORD, host='postgres', port=POSTGRES_PORT)
         cursor = conn.cursor()
 
         cursor.execute("SELECT markup_profile_id from person p where p.chat_id = %s", (chat_id,))
@@ -68,4 +70,10 @@ def save_translate_to_redis(chat_id, profile_list):
 
 
 if __name__ == "__main__":
-    app.run()
+    CODE = os.getenv('TRANSLATE_CODE_SERVICE')
+    DBNAME = os.getenv('POSTGRES_DATABASE')
+    USER = os.getenv('POSTGRES_USER')
+    PASSWORD = os.getenv('POSTGRES_ROOT_PASSWORD')
+    POSTGRES_PORT = os.getenv('POSTGRES_DOCKER_PORT')
+    PORT = os.getenv('TRANSLATE_SERVICE_PORT')
+    app.run(host='0.0.0.0',port=PORT)
