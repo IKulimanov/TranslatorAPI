@@ -29,9 +29,7 @@ jobs:
           host: ${{secrets.SERVER_HOST}}
           username: ${{secrets.SERVER_USERNAME}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
-          source: |
-            "main.py"
-            "requirements.txt"
+          source: "."
           target: "/opt/translate"
 
       - name: Install Dependencies on Remote Server
