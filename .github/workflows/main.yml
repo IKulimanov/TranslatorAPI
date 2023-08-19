@@ -1,28 +1,44 @@
-name: Deploy to Ubuntu Server
+name: Deploy to Remote Server
 
 on:
   push:
     branches:
-      - main 
+      - main  # Измените на имя вашей основной ветки
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Выберите подходящий образ для вашего приложения
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Copy files to server
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8  # Укажите версию Python, если нужно
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Copy to Remote Server
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SERVER_HOST}} 
-          username: ${{ secrets.SERVER_USERNAME}}
-          key: ${{ secrets.SSH_PRIVATE_KEY}}  # Добавьте приватный SSH-ключ сервера
-          source: "."  # Путь к вашему коду
-          target: "/opt/translate/"  # Целевая директория на сервере
+          host: ${{secrets.SERVER_HOST}}  # Замените на ваш хост
+          username: ${{secrets.SERVER_USERNAME}}  # Замените на ваше имя пользователя
+          key: ${{secrets.SSH_PRIVATE_KEY}}  # Замените на имя секрета с вашим приватным ключом
+          source: "."  # Путь к вашему приложению в репозитории
+          target: "/opt/translate"  # Путь на удаленном сервере
 
-      - name: SSH into server and restart app
-        run: |
-          ssh ${{ secrets.SERVER_USERNAME}}@${{ secrets.SERVER_HOST}} -i ${{ secrets.SSH_PRIVATE_KEY}} "cd /opt/translate/ && pip install -r requirements.txt && python main.py"
-
+      - name: SSH into Remote Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.SERVER_HOST}}
+          username: ${{secrets.SERVER_USERNAME}}
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          script: |
+            cd /opt/translate
+            chmod +x translate.service  # Если требуется дать права на исполнение
+            sudo systemctl restart translate.service  # Перезапустить сервис
