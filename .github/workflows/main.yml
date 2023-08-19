@@ -18,11 +18,11 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}  # Добавьте ваш хост
           username: ${{ secrets.SERVER_USERNAME }}  # Добавьте ваше имя пользователя
-          key: ${{ secrets.SERVER_SSH_KEY }}  # Добавьте приватный SSH-ключ сервера
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Добавьте приватный SSH-ключ сервера
           source: "."  # Путь к вашему коду
           target: "/opt/translate/"  # Целевая директория на сервере
 
       - name: SSH into server and restart app
         run: |
-          ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} -i ${{ secrets.SERVER_SSH_KEY }} "cd /opt/translate/ && pip install -r requirements.txt && python main.py"
+          ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} -i ${{ secrets.SSH_PRIVATE_KEY }} "cd /opt/translate/ && pip install -r requirements.txt && python main.py"
 
