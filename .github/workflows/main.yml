@@ -29,7 +29,9 @@ jobs:
           host: ${{secrets.SERVER_HOST}}
           username: ${{secrets.SERVER_USERNAME}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
-          source: "main.py"  # Изменено: только копирование main.py
+          source: |
+            main.py
+            requirements.txt
           target: "/opt/translate"  # Путь на удаленном сервере
 
       - name: Install Dependencies on Remote Server
