@@ -23,7 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Copy main.py to Remote Server
+      - name: Copy files to Remote Server
         uses: appleboy/scp-action@master
         with:
           host: ${{secrets.SERVER_HOST}}
@@ -32,7 +32,7 @@ jobs:
           source: |
             main.py
             requirements.txt
-          target: "/opt/translate"  # Путь на удаленном сервере
+          target: "/opt/translate"
 
       - name: Install Dependencies on Remote Server
         uses: appleboy/ssh-action@master
@@ -42,6 +42,7 @@ jobs:
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
             cd /opt/translate
+
             # Установка pip, если он не установлен
             sudo apt-get update
             sudo apt-get install -y python3-pip
