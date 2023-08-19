@@ -40,5 +40,4 @@ jobs:
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
             cd /opt/translate
-            chmod +x translate.service  # Если требуется дать права на исполнение
             sudo systemctl restart translate.service  # Перезапустить сервис
