@@ -16,7 +16,7 @@ jobs:
       - name: Copy files to server
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}  # Добавьте ваш хост
+          host: ${{ secrets.SERVER_HOST }} 
           username: ${{ secrets.SERVER_USERNAME }}  # Добавьте ваше имя пользователя
           key: ${{ secrets.SSH_PRIVATE_KEY }}  # Добавьте приватный SSH-ключ сервера
           source: "."  # Путь к вашему коду
