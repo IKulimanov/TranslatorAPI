@@ -1,0 +1,27 @@
+name: Deploy to Ubuntu Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Deploy to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}  # добавьте хост сервера в Secrets
+        username: ${{ secrets.SERVER_USERNAME }}  # добавьте имя пользователя сервера в Secrets
+        key: ${{ secrets.SSH_PRIVATE_KEY }}  # добавьте приватный SSH ключ в Secrets
+        source: "deployment"  # путь к скрипту деплоя
+        target: "~/deployment"  # путь на сервере
+
+    - name: SSH into server and run deployment script
+      run: |
+        ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'bash -s' < deployment/deploy_script.sh
