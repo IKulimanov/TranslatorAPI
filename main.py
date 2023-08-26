@@ -1,11 +1,10 @@
-import logging
-
 from flask import Flask, request
 from googletrans import Translator
 import psycopg2
 from psycopg2 import Error
 import os
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
 app = Flask(__name__)
@@ -35,11 +34,11 @@ def get_translate_text(text, src_language, dsc_languages):
 
 def save_translate_to_db(chat_id, profile_list):
     global conn, cursor
-    print("start save")
+    logger.info("Save db start")
     try:
         conn = psycopg2.connect(dbname=DBNAME, user=USER, password=PASSWORD, host=HOST, port=POSTGRES_PORT)
         cursor = conn.cursor()
-        print(conn)
+        logger.info("Connection open")
         cursor.execute("SELECT markup_profile_id from person p where p.chat_id = %s", (chat_id,))
         markup_profile_id = cursor.fetchone()
         if markup_profile_id[0] is None:
@@ -62,18 +61,33 @@ def save_translate_to_db(chat_id, profile_list):
                            (profile_list['ru'], profile_list['en'], profile_list['es'], target_id))
         cursor.execute("UPDATE person p SET markup_profile_id = %s WHERE p.chat_id = %s", (target_id, (chat_id,)))
         conn.commit()
-        print("commit")
     except (Exception, Error) as error:
-        print("Error while connecting to PostgreSQL", error)
+        logger.error("Error while connecting to PostgreSQL: %s", error)
         return error
     finally:
         if conn:
             cursor.close()
             conn.close()
+            logger.info("Connection closed")
             return "ok"
 
 
 if __name__ == "__main__":
+    # Создание логгера
+    logger = logging.getLogger('translate')
+    logger.setLevel(logging.DEBUG)  # Установка уровня логирования (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+
+    # Создание обработчика для вывода логов в консоль
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)  # Установка уровня для обработчика
+
+    # Создание форматирования для логов
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(formatter)
+
+    # Добавление обработчика к логгеру
+    logger.addHandler(console_handler)
+
     CODE = os.getenv('TRANSLATE_CODE_SERVICE')
     DBNAME = os.getenv('POSTGRES_DATABASE')
     USER = os.getenv('POSTGRES_USER')
