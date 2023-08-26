@@ -31,9 +31,9 @@ def get_translate_text(text, src_language, dsc_languages):
     return result
 
 
-def save_translate_to_redis(chat_id, profile_list):
+def save_translate_to_db(chat_id, profile_list):
     try:
-        conn = psycopg2.connect(dbname=DBNAME, user=USER, password=PASSWORD, host='postgres', port=POSTGRES_PORT)
+        conn = psycopg2.connect(dbname=DBNAME, user=USER, password=PASSWORD, host=HOST, port=POSTGRES_PORT)
         cursor = conn.cursor()
 
         cursor.execute("SELECT markup_profile_id from person p where p.chat_id = %s", (chat_id,))
@@ -74,6 +74,7 @@ if __name__ == "__main__":
     DBNAME = os.getenv('POSTGRES_DATABASE')
     USER = os.getenv('POSTGRES_USER')
     PASSWORD = os.getenv('POSTGRES_ROOT_PASSWORD')
-    POSTGRES_PORT = os.getenv('POSTGRES_DOCKER_PORT')
+    POSTGRES_PORT = os.getenv('POSTGRES_PORT')
     PORT = os.getenv('TRANSLATE_SERVICE_PORT')
+    HOST = os.getenv('POSTGRES_HOST')
     app.run(host='0.0.0.0',port=PORT)
