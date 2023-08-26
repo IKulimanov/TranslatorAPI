@@ -19,7 +19,7 @@ def translate():
     dsc_language = body['dsc_language'][0]
     chat_id = body['chat_id'][0]
     result = get_translate_text(text, src_language, dsc_language)
-    return save_translate_to_redis(chat_id, result)
+    return save_translate_to_db(chat_id, result)
 
 
 def get_translate_text(text, src_language, dsc_languages):
