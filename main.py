@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask, request
 from googletrans import Translator
 import psycopg2
@@ -36,7 +38,7 @@ def save_translate_to_db(chat_id, profile_list):
     try:
         conn = psycopg2.connect(dbname=DBNAME, user=USER, password=PASSWORD, host=HOST, port=POSTGRES_PORT)
         cursor = conn.cursor()
-
+        print(conn)
         cursor.execute("SELECT markup_profile_id from person p where p.chat_id = %s", (chat_id,))
         markup_profile_id = cursor.fetchone()
         if markup_profile_id[0] is None:
@@ -59,7 +61,7 @@ def save_translate_to_db(chat_id, profile_list):
                            (profile_list['ru'], profile_list['en'], profile_list['es'], target_id))
         cursor.execute("UPDATE person p SET markup_profile_id = %s WHERE p.chat_id = %s", (target_id, (chat_id,)))
         conn.commit()
-
+        print("commit")
     except (Exception, Error) as error:
         print("Error while connecting to PostgreSQL", error)
         return error
