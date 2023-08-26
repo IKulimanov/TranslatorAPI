@@ -3,11 +3,11 @@ name: Deploy to Remote Server
 on:
   push:
     branches:
-      - main  # Измените на имя вашей основной ветки
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Выберите подходящий образ для вашего приложения
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
@@ -16,23 +16,23 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8  # Укажите версию Python, если нужно
+          python-version: 3.8
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Copy to Remote Server
+      - name: Copy files to Remote Server
         uses: appleboy/scp-action@master
         with:
-          host: ${{secrets.SERVER_HOST}}  # Замените на ваш хост
-          username: ${{secrets.SERVER_USERNAME}}  # Замените на ваше имя пользователя
-          key: ${{secrets.SSH_PRIVATE_KEY}}  # Замените на имя секрета с вашим приватным ключом
-          source: "."  # Путь к вашему приложению в репозитории
-          target: "/opt/translate"  # Путь на удаленном сервере
+          host: ${{secrets.SERVER_HOST}}
+          username: ${{secrets.SERVER_USERNAME}}
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          source: "."
+          target: "/opt/translate"
 
-      - name: SSH into Remote Server
+      - name: Install Dependencies on Remote Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{secrets.SERVER_HOST}}
@@ -40,4 +40,14 @@ jobs:
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
             cd /opt/translate
-            sudo systemctl restart translate.service  # Перезапустить сервис
+
+            # Установка pip, если он не установлен
+            sudo apt-get update
+            sudo apt-get install -y python3-pip
+
+            # Установка зависимостей через pip
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+
+            # Перезапуск сервиса
+            sudo systemctl restart translate.service
