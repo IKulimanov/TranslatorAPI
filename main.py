@@ -35,6 +35,7 @@ def get_translate_text(text, src_language, dsc_languages):
 
 def save_translate_to_db(chat_id, profile_list):
     global conn, cursor
+    print("start save")
     try:
         conn = psycopg2.connect(dbname=DBNAME, user=USER, password=PASSWORD, host=HOST, port=POSTGRES_PORT)
         cursor = conn.cursor()
